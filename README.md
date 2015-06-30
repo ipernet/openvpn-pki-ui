@@ -14,6 +14,14 @@ Installation
   - ``ca``: Path to your **Certificate Authority certificate** and **key**  files used by your [**OpenVPN instance**][2].
   - ``ovpn``: The ``.ovpn`` client configuration that that will be sent along with the generated credentials. Ensure to **keep tokens** for CA/Cert/Key
 
+
+- **Install dependencies with NPM**
+
+``npm install``
+
+- **Run**
+
+``node server.js``
 [1]: https://github.com/ipernet/mini-sso-google
 
 [2]: https://openvpn.net/index.php/open-source/documentation/howto.html#pki
