@@ -1,6 +1,8 @@
-var forge	=	require('node-forge'),
+var	fs		=   require('fs'),
+	forge	=	require('node-forge'),
 	zip		=	require('adm-zip'),
-	logger	=	require('../app/log');
+	logger	=	require('../app/log')
+;
 
 function generateCertificate(config, commonName, passphrase)
 {
@@ -53,24 +55,34 @@ function generateCertificate(config, commonName, passphrase)
 	cert.setIssuer(caSubject.attributes);
 
 	cert.sign(caKey, forge.md.sha256.create());
-	
-	logger.info('[' + (new Date()).toString() + '] Signed new certicate for ' + commonName + ', serial ' + cert.serialNumber);
-	
-	return {
+
+	var certs	=	{
 		privateKey: forge.pki.encryptRsaPrivateKey(keys.privateKey, passphrase),
 		publicKey: forge.pki.publicKeyToPem(keys.publicKey),
 		certificate: forge.pki.certificateToPem(cert),
 		ca: forge.pki.certificateToPem(caCert)
 	};
+
+	// Log
+	logger.info('[' + (new Date()).toString() + '] Signed new certicate for ' + commonName + ', serial ' + cert.serialNumber);
+
+	// Save the cert, for revokation
+	fs.writeFile(__dirname + '/../certs/' + commonName + '-' + cert.serialNumber + '.crt', certs.certificate, function(err)
+	{
+		if(err)
+			logger.error('[' + (new Date()).toString() + '] Can\'t save certificate ' + commonName + ', serial ' + cert.serialNumber);
+	});
+
+	return certs;
 };
 
 exports.zip	=	function(config, commonName, passphrase)
 {
 	var files	=	generateCertificate(config, commonName, passphrase);
-	
+
 	if( ! files || ! files.privateKey)
 		return false;
-	
+
 	// OVPN content
 	var ovpn	=	config.client.ovpn,
 		prefix		=	commonName + '-' + config.client.suffix,
@@ -79,19 +91,19 @@ exports.zip	=	function(config, commonName, passphrase)
 		pubName		=	prefix + '.pub',
 		keyName		=	prefix + '.key',
 		ovpnName	=	prefix + '.ovpn',
-	
+
 	ovpn	=	ovpn.replace('{{ca}}', caName);
 	ovpn	=	ovpn.replace('{{cert}}', certName);
 	ovpn	=	ovpn.replace('{{key}}', keyName);
-	
+
 	// zip
 	var archive	=	new zip();
-	
+
 	archive.addFile(keyName, new Buffer(files.privateKey));
 	archive.addFile(certName, new Buffer(files.certificate));
 	archive.addFile(pubName, new Buffer(files.publicKey));
 	archive.addFile(caName, new Buffer(files.ca));
 	archive.addFile(ovpnName, new Buffer(ovpn));
-	   
+
 	return archive.toBuffer();
 }
