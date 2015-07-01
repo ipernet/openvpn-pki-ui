@@ -30,4 +30,10 @@ $(document).ready(function()
 		else
 			$('button').attr('disabled', true);
 	});
+	
+	$('form').submit(function(e)
+	{
+		e.preventDefault();
+		return false;
+	});
 });

@@ -1,6 +1,6 @@
 var	fs		=   require('fs'),
 	forge	=	require('node-forge'),
-	zip		=	require('adm-zip'),
+	zip		=	require('jszip'),
 	logger	=	require('../app/log')
 ;
 
@@ -84,7 +84,7 @@ exports.zip	=	function(config, commonName, passphrase)
 		return false;
 
 	// OVPN content
-	var ovpn	=	config.client.ovpn,
+	var ovpn		=	config.client.ovpn,
 		prefix		=	commonName + '-' + config.client.suffix,
 		caName		=	prefix + '-ca.crt',
 		certName	=	prefix + '.crt',
@@ -97,13 +97,14 @@ exports.zip	=	function(config, commonName, passphrase)
 	ovpn	=	ovpn.replace('{{key}}', keyName);
 
 	// zip
-	var archive	=	new zip();
+	var archive	=	new zip(),
+		folder	=	archive.folder(config.client.suffix);
 
-	archive.addFile(keyName, new Buffer(files.privateKey));
-	archive.addFile(certName, new Buffer(files.certificate));
-	archive.addFile(pubName, new Buffer(files.publicKey));
-	archive.addFile(caName, new Buffer(files.ca));
-	archive.addFile(ovpnName, new Buffer(ovpn));
+	folder.file(keyName, files.privateKey);
+	folder.file(certName, files.certificate);
+	folder.file(pubName, files.publicKey);
+	folder.file(caName, files.ca);
+	folder.file(ovpnName, ovpn);
 
-	return archive.toBuffer();
-}
+	return archive.generate({type: 'nodebuffer'});
+};

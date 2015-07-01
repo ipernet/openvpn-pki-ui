@@ -10,7 +10,7 @@
 		"bluebird": "2.9.x",
 		"node-forge": "0.6.x",
 		"restler": "3.1.x",
-		"adm-zip": "0.4.x",
+		"jszip": "2.5.x",
 		"winston": "1.0.x"
 	},
 	"engines": {
