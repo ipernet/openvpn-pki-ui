@@ -5,13 +5,13 @@ $(document).ready(function()
 		$('.progress').removeClass('hide');
 		$('button').hide();
 
-		$('iframe').attr('src', '/download?p=' + encodeURIComponent($('#password').val()));
+		$('iframe').attr('src', '/download?e=' + $('#endpoint').val() + '&p=' + encodeURIComponent($('#password').val()));
 
 		window.setTimeout(function()
 		{
 			$('.progress').addClass('hide');
 			$('button').show();
-			$('#password').val('')
+			$('#password').val('');
 		}, 5000);
 	});
 

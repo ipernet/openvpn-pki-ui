@@ -11,7 +11,7 @@ promise.promisifyAll(fs);
 function check(conf)
 {
 	return new promise(function(resolv, reject)
-	{			
+	{
 		// Listen options
 		if( ! conf.listen || isNaN(conf.listen.port) || !  conf.listen.address)
 			reject('Invalid listen directive.');
@@ -28,15 +28,21 @@ function check(conf)
 				if( ! conf.sso || ! conf.sso.api || ! url.parse(conf.sso.api) || ! conf.sso.cookie)
 					reject('Invalid SSO configuration');
 				
-				if( ! conf.client || ! conf.client.ovpn)
-					reject('Invalid client configuration.');
+				if( ! conf.endpoints)
+					reject('Invalid endpoints configuration.');
+				
+				for(var endpoint in conf.endpoints)
+				{
+					if( ! conf.endpoints[endpoint].name)
+						reject('Invalid client name.');
 					
-				if( ! isNaN(conf.client.keysize))
-					conf.client.keysize	=	1024;
+					if(isNaN(conf.endpoints[endpoint].keysize))
+						reject('Invalid client keysize.');
 
-				if( ! conf.client.suffix)
-					conf.client.suffix	=	null;
-
+					if( ! conf.endpoints[endpoint].suffix)
+						conf.endpoints[endpoint].suffix	=	null;
+				}
+				
 				resolv(conf);
 			})
 			.catch(function(e)

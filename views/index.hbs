@@ -7,6 +7,15 @@
 		</div>
 
 		<div class="form-group">
+			<label for="pass">VPN Endpoint</label>
+			<select id="endpoint" class="form-control">
+				{{#each endpoints}}
+				<option value="{{id}}">{{name}}</option>
+				{{/each}}
+			</select>
+		</div>
+
+		<div class="form-group">
 			<label for="pass">Certificate Passphrase</label>
 			<input type="password" class="form-control" id="password" placeholder="Passphrase">
 			<p></p>

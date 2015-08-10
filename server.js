@@ -58,21 +58,29 @@ app.use(function(req, res, next)
  */
 app.get('/', function(req, res)
 {
-	res.render('index');
+	var endpoints = [];
+	
+	for(var endpoint in conf.endpoints)
+		endpoints.push({id: endpoint, name: conf.endpoints[endpoint].name});
+	
+	res.render('index', {endpoints: endpoints});
 });
 
 app.get('/download', function(req, res)
 {
+	if( ! req.query.e || ! conf.endpoints[req.query.e])
+		return res.status(401).send('Invalid endpoint.');
+	
 	if( ! req.query.p)
-		res.status(401).send('Invalid passphrase.');
-
-	var zip	=	pki.zip(conf, req.certCommonName, req.query.p);
+		return res.status(401).send('Invalid passphrase.');
+	
+	var zip	=	pki.zip(conf, req.certCommonName, req.query.p, conf.endpoints[req.query.e]);
 
 	if( ! zip)
-		res.status(401).send('Generation error.');
+		return res.status(401).send('Generation error.');
 
 	res.contentType('application/zip');
-	res.setHeader('content-disposition','attachment; filename=Credentials-' + conf.client.suffix + '.zip');
+	res.setHeader('content-disposition','attachment; filename=Credentials-' + conf.endpoints[req.query.e].suffix + '.zip');
 
 	res.send(zip);
 });

@@ -7,22 +7,23 @@ sso:
 ca:
     key: /etc/openvpn/easy-rsa/2.0/keys/ca.key
     cert: /etc/openvpn/easy-rsa/2.0/keys/ca.crt
-client:
-    keysize: 2048
-    suffix: myOpenVPN
-    ovpn: |
-        remote X.X.X.X
-        client
-        dev tun0
-        proto udp
-        port 1194
-        cipher AES-128-CBC
-        persist-tun
-        persist-key
-        comp-lzo
-        nobind
-        tls-client
-        ns-cert-type server
-        ca {{ca}}
-        cert {{cert}}
-        key {{key}}
+endpoints:
+    myvpn:
+        keysize: 2048
+        suffix: myOpenVPN
+        ovpn: |
+            remote X.X.X.X
+            client
+            dev tun0
+            proto udp
+            port 1194
+            cipher AES-128-CBC
+            persist-tun
+            persist-key
+            comp-lzo
+            nobind
+            tls-client
+            ns-cert-type server
+            ca {{ca}}
+            cert {{cert}}
+            key {{key}}

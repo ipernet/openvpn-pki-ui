@@ -4,18 +4,18 @@ var	fs		=   require('fs'),
 	logger	=	require('../app/log')
 ;
 
-function generateCertificate(config, commonName, passphrase)
+function generateCertificate(config, commonName, passphrase, client)
 {
 	// https://github.com/digitalbazaar/forge/issues/152
 	// https://github.com/digitalbazaar/forge/issues/265
-
+	
 	// CA info
 	var caCert		=	forge.pki.certificateFromPem(config.ca.cert),
 		caSubject	=	caCert.subject,
 		caKey		=	forge.pki.privateKeyFromPem(config.ca.key);
-
+		
 	// Client info
-	var keys	=	forge.pki.rsa.generateKeyPair(config.client.keysize);
+	var keys	=	forge.pki.rsa.generateKeyPair(client.keysize);
 
 	var cert	=	forge.pki.createCertificate();
 
@@ -76,16 +76,16 @@ function generateCertificate(config, commonName, passphrase)
 	return certs;
 };
 
-exports.zip	=	function(config, commonName, passphrase)
+exports.zip	=	function(config, commonName, passphrase, client)
 {
-	var files	=	generateCertificate(config, commonName, passphrase);
+	var files	=	generateCertificate(config, commonName, passphrase, client);
 
 	if( ! files || ! files.privateKey)
 		return false;
 
 	// OVPN content
-	var ovpn		=	config.client.ovpn,
-		prefix		=	commonName + '-' + config.client.suffix,
+	var ovpn		=	client.ovpn,
+		prefix		=	commonName + '-' + client.suffix,
 		caName		=	prefix + '-ca.crt',
 		certName	=	prefix + '.crt',
 		pubName		=	prefix + '.pub',
@@ -98,7 +98,7 @@ exports.zip	=	function(config, commonName, passphrase)
 
 	// zip
 	var archive	=	new zip(),
-		folder	=	archive.folder(config.client.suffix);
+		folder	=	archive.folder(client.suffix);
 
 	folder.file(keyName, files.privateKey);
 	folder.file(certName, files.certificate);
